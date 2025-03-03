@@ -13,10 +13,8 @@
 import os
 import xml.etree.ElementTree as ET
 import re
+from check_digit_calculation import calculate_check_digit
 
-def calculate_check_digit(container_code):
-    # You can find this function from Part 1
-    # https://linzichun.com/posts/robust-container-number-ocr-recognition-system-part1/#design-of-the-recognition-process
 
 def validate_annotations(xml_file):
     # Load and parse the XML file
@@ -46,7 +44,8 @@ def validate_annotations(xml_file):
                 if label not in labels_attributes:
                     labels_attributes[label] = {}
                 labels_attributes[label][attribute_name] = attribute_value
-
+        print(image_name)
+        print(labels_attributes)
         # Validate each label and attribute
         for label, attributes in labels_attributes.items():
             for attribute_name, attribute_value in attributes.items():
@@ -73,7 +72,7 @@ def validate_annotations(xml_file):
                 print(f"Image: {image_name}, Label: CN and CN_NUM, Mismatch in last 7 digits")
 
 if __name__ == "__main__":
-  raw_cvat_annotations_floder = "/home/user/project/data/cvat_annotations" # replace with your absolute folder path
+  raw_cvat_annotations_folder = "/home/osman/Downloads/export-data" # replace with your absolute folder path
 
   for filename in os.listdir(raw_cvat_annotations_folder): # check all the annotation files
       if filename.endswith(".xml"):
