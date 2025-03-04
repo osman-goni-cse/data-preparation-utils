@@ -3,19 +3,20 @@ import os
 from tqdm import tqdm # for progress bar
 
 # define the paths for training set
-raw_cvat_annotation_file = '/home/user/project/data/cvat_annotations/container_annotation_for_train.xml'
-output_labels_folder = '/home/user/project/data/yolov8_det_data/train/labels'
+raw_cvat_annotation_file = '/home/osman/Downloads/export-data/annotations.xml'
+output_labels_folder = '/home/osman/Downloads/export-data/1k_labels'
+# output_labels_folder = '/home/user/project/data/yolov8_det_data/train/labels'
 # do the same for the validation set
 # raw_cvat_annotation_file = '/home/user/project/data/cvat_annotations/container_annotation_for_valid.xml'
 # output_labels_folder = '/home/user/project/data/yolov8_det_data/valid/labels'
 
 # Define the interested labels, what we want to detect
-interested_labels = {'CN': 0, 'CN_ABC': 1, 'CN_NUM': 2, 'TS': 3}
+interested_labels = {'CN': 0, 'CN_ABC': 1, 'CN_NUM': 2, 'TS': 3, 'C_DIGIT': 4}
 
 if not os.path.exists(output_labels_folder):
     os.makedirs(output_labels_folder)
 
-tree = ET.parse(raw_cvat_annotations_file)
+tree = ET.parse(raw_cvat_annotation_file)
 root = tree.getroot()
 
 images = root.findall('image')
