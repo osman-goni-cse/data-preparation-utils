@@ -1,6 +1,8 @@
 # Calculate the check-digit of the container number
 # input: container_code, first 10 characters of the container number
 # output: check-digit, the 11th chracter
+import argparse
+
 def calculate_check_digit(container_code):
     # Mapping letters to their corresponding values
     letter_values = {
@@ -27,3 +29,13 @@ def calculate_check_digit(container_code):
         check_digit = 0
 
     return check_digit
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description="calculate check digit from container number")
+    parser.add_argument("--cn", default="ABCD112233")
+
+    args = parser.parse_args()
+
+    print(args.cn + str(calculate_check_digit(args.cn)))

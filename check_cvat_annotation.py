@@ -38,14 +38,17 @@ def validate_annotations(xml_file):
         # Collect all attributes for each label
         for box in image.findall('box'):
             label = box.get('label')
+            if "rotation" in box.attrib:
+                print(f"Image: {image_name}, Label: {label}, Rotation Exists")
+
             for attribute in box.findall('attribute'):
                 attribute_name = attribute.get('name')
                 attribute_value = attribute.text
                 if label not in labels_attributes:
                     labels_attributes[label] = {}
                 labels_attributes[label][attribute_name] = attribute_value
-        print(image_name)
-        print(labels_attributes)
+        # print(image_name)
+        # print(labels_attributes)
         # Validate each label and attribute
         for label, attributes in labels_attributes.items():
             for attribute_name, attribute_value in attributes.items():
@@ -72,7 +75,7 @@ def validate_annotations(xml_file):
                 print(f"Image: {image_name}, Label: CN and CN_NUM, Mismatch in last 7 digits")
 
 if __name__ == "__main__":
-  raw_cvat_annotations_folder = "/home/osman/Downloads/export-data" # replace with your absolute folder path
+  raw_cvat_annotations_folder = "/home/osman/Downloads" # replace with your absolute folder path
 
   for filename in os.listdir(raw_cvat_annotations_folder): # check all the annotation files
       if filename.endswith(".xml"):
