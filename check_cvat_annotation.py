@@ -53,8 +53,15 @@ def validate_annotations(xml_file):
         for label, attributes in labels_attributes.items():
             for attribute_name, attribute_value in attributes.items():
                 if label in rules and rules[label]["attribute"] == attribute_name:
-                    if not re.match(rules[label]["regex"], attribute_value):
-                        print(f"Image: {image_name}, Label: {label}, Attribute: {attribute_name}, Invalid value: {attribute_value}")
+                    # if not re.match(rules[label]["regex"], attribute_value):
+                    #     print(f"Image: {image_name}, Label: {label}, Attribute: {attribute_name}, Invalid value: {attribute_value}")
+                    try:
+                        if not re.match(rules[label]["regex"], attribute_value):
+                            print(f"Image: {image_name}, Label: {label}, Attribute: {attribute_name}, Invalid value: {attribute_value}")
+                    except TypeError as e:
+                        print(f"TypeError: {e} - Image: {image_name}, Label: {label}, Attribute: {attribute_name}, Invalid value: {attribute_value}")
+                    except re.error as e:
+                        print(f"Regex error: {e} - Image: {image_name}, Label: {label}, Attribute: {attribute_name}, Invalid value: {attribute_value}")
 
                 # rule 8
                 if label == "CN" and attribute_name == "cn_text":
@@ -75,7 +82,7 @@ def validate_annotations(xml_file):
                 print(f"Image: {image_name}, Label: CN and CN_NUM, Mismatch in last 7 digits")
 
 if __name__ == "__main__":
-  raw_cvat_annotations_folder = "/home/osman/Downloads" # replace with your absolute folder path
+  raw_cvat_annotations_folder = "/home/osman/Downloads/export-data/task_data" # replace with your absolute folder path
 
   for filename in os.listdir(raw_cvat_annotations_folder): # check all the annotation files
       if filename.endswith(".xml"):
