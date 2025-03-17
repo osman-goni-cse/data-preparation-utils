@@ -49,44 +49,109 @@ def validate_annotations(xml_file):
                 value = attribute_element.text
                 print(f"Image: {image_name}, Label: {label}, Value: {value} Rotation Exists")
 
+        #     for attribute in box.findall('attribute'):
+        #         attribute_name = attribute.get('name')
+        #         attribute_value = attribute.text
+        #         if label not in labels_attributes:
+        #             labels_attributes[label] = {}
+        #         labels_attributes[label][attribute_name] = attribute_value
+        # # print(image_name)
+        # # print(labels_attributes)
+        # # Validate each label and attribute
+        # for label, attributes in labels_attributes.items():
+        #     for attribute_name, attribute_value in attributes.items():
+        #         if label in rules and rules[label]["attribute"] == attribute_name:
+        #             # if not re.match(rules[label]["regex"], attribute_value):
+        #             #     print(f"Image: {image_name}, Label: {label}, Attribute: {attribute_name}, Invalid value: {attribute_value}")
+        #             try:
+        #                 if not re.match(rules[label]["regex"], attribute_value):
+        #                     print(f"Image: {image_name}, Label: {label}, Attribute: {attribute_name}, Invalid value: {attribute_value}")
+        #             except TypeError as e:
+        #                 print(f"TypeError: {e} - Image: {image_name}, Label: {label}, Attribute: {attribute_name}, Invalid value: {attribute_value}")
+        #             except re.error as e:
+        #                 print(f"Regex error: {e} - Image: {image_name}, Label: {label}, Attribute: {attribute_name}, Invalid value: {attribute_value}")
+
+        #         # rule 8
+        #         if label == "CN" and attribute_name == "cn_text":
+        #             if len(attribute_value) != 11: # CN should be 11 digits
+        #                 print(f"Image: {image_name}, Label: CN, Invalid length: {attribute_value}")
+        #             else:
+        #                 expected_check_digit = calculate_check_digit(attribute_value[:10])
+        #                 actual_check_digit = int(attribute_value[10])
+        #                 if expected_check_digit != actual_check_digit:
+        #                     print(f"Image: {image_name}, Label: CN, Invalid check digit in: {attribute_value}")
+        # # rule 6
+        # if "CN" in labels_attributes and "CN_ABC" in labels_attributes:
+        #     if labels_attributes["CN"].get("cn_text")[:4] != labels_attributes["CN_ABC"].get("cn_abc_text"):
+        #         print(f"Image: {image_name}, Label: CN and CN_ABC, Mismatch in first 4 characters")
+        # # rule 7
+        # if "CN" in labels_attributes and "CN_NUM" in labels_attributes:
+        #     if labels_attributes["CN"].get("cn_text")[-7:] != labels_attributes["CN_NUM"].get("cn_num_text"):
+        #         print(f"Image: {image_name}, Label: CN and CN_NUM, Mismatch in last 7 digits")
             for attribute in box.findall('attribute'):
                 attribute_name = attribute.get('name')
                 attribute_value = attribute.text
                 if label not in labels_attributes:
                     labels_attributes[label] = {}
-                labels_attributes[label][attribute_name] = attribute_value
-        # print(image_name)
-        # print(labels_attributes)
+                if attribute_name not in labels_attributes[label]:
+                    labels_attributes[label][attribute_name] = []
+                labels_attributes[label][attribute_name].append(attribute_value)
+
+        # if(image.get('id') == '1014'):
+        #     print(image_name)
+        #     print(labels_attributes)
+
         # Validate each label and attribute
         for label, attributes in labels_attributes.items():
-            for attribute_name, attribute_value in attributes.items():
-                if label in rules and rules[label]["attribute"] == attribute_name:
-                    # if not re.match(rules[label]["regex"], attribute_value):
-                    #     print(f"Image: {image_name}, Label: {label}, Attribute: {attribute_name}, Invalid value: {attribute_value}")
-                    try:
-                        if not re.match(rules[label]["regex"], attribute_value):
-                            print(f"Image: {image_name}, Label: {label}, Attribute: {attribute_name}, Invalid value: {attribute_value}")
-                    except TypeError as e:
-                        print(f"TypeError: {e} - Image: {image_name}, Label: {label}, Attribute: {attribute_name}, Invalid value: {attribute_value}")
-                    except re.error as e:
-                        print(f"Regex error: {e} - Image: {image_name}, Label: {label}, Attribute: {attribute_name}, Invalid value: {attribute_value}")
+            for attribute_name, attribute_values in attributes.items():
+                for attribute_value in attribute_values:
+                    if label in rules and rules[label]["attribute"] == attribute_name:
+                        try:
+                            if not re.match(rules[label]["regex"], attribute_value):
+                                print(f"Image: {image_name}, Label: {label}, Attribute: {attribute_name}, Invalid value: {attribute_value}")
+                        except TypeError as e:
+                            print(f"TypeError: {e} - Image: {image_name}, Label: {label}, Attribute: {attribute_name}, Invalid value: {attribute_value}")
+                        except re.error as e:
+                            print(f"Regex error: {e} - Image: {image_name}, Label: {label}, Attribute: {attribute_name}, Invalid value: {attribute_value}")
 
-                # rule 8
-                if label == "CN" and attribute_name == "cn_text":
-                    if len(attribute_value) != 11: # CN should be 11 digits
-                        print(f"Image: {image_name}, Label: CN, Invalid length: {attribute_value}")
-                    else:
-                        expected_check_digit = calculate_check_digit(attribute_value[:10])
-                        actual_check_digit = int(attribute_value[10])
-                        if expected_check_digit != actual_check_digit:
-                            print(f"Image: {image_name}, Label: CN, Invalid check digit in: {attribute_value}")
+                    # rule 8
+                    if label == "CN" and attribute_name == "cn_text":
+                        if len(attribute_value) != 11: # CN should be 11 digits
+                            print(f"Image: {image_name}, Label: CN, Invalid length: {attribute_value}")
+                        else:
+                            expected_check_digit = calculate_check_digit(attribute_value[:10])
+                            actual_check_digit = int(attribute_value[10])
+                            if expected_check_digit != actual_check_digit:
+                                print(f"Image: {image_name}, Label: CN, Invalid check digit in: {attribute_value}")
+
         # rule 6
         if "CN" in labels_attributes and "CN_ABC" in labels_attributes:
-            if labels_attributes["CN"].get("cn_text")[:4] != labels_attributes["CN_ABC"].get("cn_abc_text"):
+            cn_texts = labels_attributes["CN"].get("cn_text", [])
+            cn_abc_texts = labels_attributes["CN_ABC"].get("cn_abc_text", [])
+            mismatch_found = True
+            for cn_text in cn_texts:
+                for cn_abc_text in cn_abc_texts:
+                    if cn_text[:4] == cn_abc_text:
+                        mismatch_found = False
+                        break
+                if not mismatch_found:
+                    break
+            if mismatch_found:
                 print(f"Image: {image_name}, Label: CN and CN_ABC, Mismatch in first 4 characters")
+
         # rule 7
         if "CN" in labels_attributes and "CN_NUM" in labels_attributes:
-            if labels_attributes["CN"].get("cn_text")[-7:] != labels_attributes["CN_NUM"].get("cn_num_text"):
+            cn_texts = labels_attributes["CN"].get("cn_text", [])
+            cn_num_texts = labels_attributes["CN_NUM"].get("cn_num_text", [])
+            mismatch_found = True
+            for cn_text in cn_texts:
+                for cn_num_text in cn_num_texts:
+                    if cn_text[-7:] == cn_num_text:
+                        mismatch_found = False
+                        break
+                if not mismatch_found:
+                    break
+            if mismatch_found:
                 print(f"Image: {image_name}, Label: CN and CN_NUM, Mismatch in last 7 digits")
     
     print(f"Background images: {background_img}")
