@@ -14,7 +14,7 @@ import os
 import xml.etree.ElementTree as ET
 import re
 from check_digit_calculation import calculate_check_digit
-
+import argparse
 
 def validate_annotations(xml_file):
     # Load and parse the XML file
@@ -30,16 +30,24 @@ def validate_annotations(xml_file):
         "C_DIGIT": {"attribute": "c_digit_num", "regex": r"^\d$"}
     }
 
+    background_img = 0
+
     # Iterate through images and their boxes
     for image in root.findall('image'):
         image_name = image.get('name')
         labels_attributes = {}
 
+        if not image.findall('box'):
+            background_img += 1
+
         # Collect all attributes for each label
         for box in image.findall('box'):
             label = box.get('label')
             if "rotation" in box.attrib:
-                print(f"Image: {image_name}, Label: {label}, Rotation Exists")
+                attribute_name = rules[label]["attribute"]
+                attribute_element = box.find(f"attribute[@name='{attribute_name}']")
+                value = attribute_element.text
+                print(f"Image: {image_name}, Label: {label}, Value: {value} Rotation Exists")
 
             for attribute in box.findall('attribute'):
                 attribute_name = attribute.get('name')
@@ -80,11 +88,18 @@ def validate_annotations(xml_file):
         if "CN" in labels_attributes and "CN_NUM" in labels_attributes:
             if labels_attributes["CN"].get("cn_text")[-7:] != labels_attributes["CN_NUM"].get("cn_num_text"):
                 print(f"Image: {image_name}, Label: CN and CN_NUM, Mismatch in last 7 digits")
+    
+    print(f"Background images: {background_img}")
 
 if __name__ == "__main__":
-  raw_cvat_annotations_folder = "/home/osman/Downloads/export-data/task_data" # replace with your absolute folder path
 
-  for filename in os.listdir(raw_cvat_annotations_folder): # check all the annotation files
+    parser = argparse.ArgumentParser(description="validate raw annotation container number")
+    parser.add_argument("--xml_path", default="/home/osman/Downloads/export-data/job-data")
+
+    args = parser.parse_args()
+    raw_cvat_annotations_folder = args.xml_path # replace with your absolute folder path
+
+    for filename in os.listdir(raw_cvat_annotations_folder): # check all the annotation files
       if filename.endswith(".xml"):
           print(filename + " check start.")
           validate_annotations(os.path.join(raw_cvat_annotations_folder, filename))
