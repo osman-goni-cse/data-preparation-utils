@@ -5,9 +5,9 @@ import cv2 # for cropping images
 import os
 from tqdm import tqdm # for progress bar
 
-raw_images_folder = '/home/osman/Downloads/export-data/images'
-raw_cvat_annotation_file = '/home/osman/Downloads/export-data/annotations.xml'
-cropped_images_folder = '/home/osman/Downloads/export-data/cropped_vertical_container_number_images'
+raw_images_folder = '/home/osman/Downloads/Dataset/CCMS'
+raw_cvat_annotation_file = '/home/osman/Downloads/Dataset/CCMS/annotations.xml'
+cropped_images_folder = '/home/osman/Downloads/Dataset/CCMS/cropped_vertical_container_number_images'
 cropped_labels_file = '/home/osman/Downloads/export-data/cropped_vertical_container_number_labels.txt'
 
 tree = ET.parse(raw_cvat_annotation_file)
@@ -39,6 +39,8 @@ with open(cropped_labels_file, 'w') as file, tqdm(total=total_cn_count, desc="Pr
 
                     img = cv2.imread(os.path.join(raw_images_folder, image_name))
                     cropped_img = img[ytl:ybr, xtl:xbr]
+                    # print(f"Cropping image: {image_name}, CN: {cn_count}, Coordinates: ({xtl}, {ytl}), ({xbr}, {ybr})")
+                    # print(f"{os.path.join(cropped_images_folder, new_image_name)}")
                     cv2.imwrite(os.path.join(cropped_images_folder, new_image_name), cropped_img)
 
                     cn_count += 1
